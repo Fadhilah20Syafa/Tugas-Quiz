@@ -3,8 +3,8 @@
     min-height: 100vh;
 }
 
-.btn,
-.navbar {
+.btn
+ {
     background: #E9967A;
     color: #FFE4E1;
     font-family: 'Cooper Black';
@@ -19,7 +19,8 @@
 }
 
 .btn:hover {
-    color: white;
+    background-color: white;
+    color: #E9967A;
 }
 
 .navbar-brand {
