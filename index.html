@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QUIZ</title>
+
+    <link rel="icon" type="image/png" sizes="512x512" href="appicon.ico">
+
+    <link rel="stylesheet" href="https://bootswatch.com/4/minty/bootstrap.min.css">
+
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="app.css" />
+</head>
+
+<body>
+
+    <div id="page-container">
+        <div id="content-wrap">
+            <div class="mb-5">
+                <nav class="navbar navbar-expand-lg navbar-danger py-2">
+                    <a class="navbar-brand" href="#"><b>QUIZ</b></a>
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01"
+                        aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                </nav>
+            </div>
+
+            <div class="container col-lg-8">
+                <div class="card bg-light mb-3">
+                    <div class="card-header">
+                        <div class="d-flex">
+                            <div class="Q">
+                                Quiz
+                            </div>
+                            <div id="category" class="C ml-auto">
+
+                            </div>
+                            <div id="type" class="T ml-auto">
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+
+                        <form id="formQuiz" action="/" method="post">
+                            <div id="quiz">
+
+                            </div>
+                            <div class="sub">
+                                <button type="submit" id="submitQuiz" class="btn  mt-5" value="">Next</button>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer id="footer">
+            <div class="text-center">
+                <b>©️ 2020 Copyright Fadhilah Syafa</b>
+            </div>
+        </footer>
+    </div>
+
+
+
+
+    <script>
+        $(document).ready(function () {
+            setInterval(function () {
+                var docHeight = $(window).height();
+                var footerHeight = $('#footer').outerHeight();
+                var footerTop = $('#footer').position().top + footerHeight;
+                var marginTop = (docHeight - footerTop + 10);
+
+                if (footerTop < docHeight)
+                    $('#footer').css('margin-top', marginTop + 'px'); // padding of 30 on footer
+                else
+                    $('#footer').css('margin-top', '0px');
+                // console.log("docheight: " + docHeight + "\n" + "footerheight: " + footerHeight + "\n" + "footertop: " + footerTop + "\n" + "new docheight: " + $(window).height() + "\n" + "margintop: " + marginTop);
+            }, 250);
+        });
+
+        var datas = [];
+        var iteration = 0;
+        var forId = 0;
+        var correct_answer = [];
+        fetch('https://opentdb.com/api.php?amount=10&category=11&difficulty=easy&type=multiple')
+            .then((response) => {
+                return response.json();
+            })
+            .then((data) => {
+                pageBuilder(data);
+                datas = data.results;
+                datas.forEach(data => {
+                    quizBuilder(data);
+                });
+            });
+
+        document.querySelector("#submitQuiz").addEventListener("click", function (event) {
+            event.preventDefault()
+            submitQuiz();
+        });
+
+        function quizBuilder(data) {
+            var option = [];
+            option.push(data.correct_answer);
+            correct_answer.push(data.correct_answer);
+            data.incorrect_answers.forEach(element => {
+                option.push(element);
+            });
+            shufOpt(option);
+
+            var quiz = document.querySelector('#quiz');
+
+            quiz.innerHTML +=
+                `<div class="row mt-5 mb-2 mx-2"><h5 class="card-text">${iteration+1} .${data.question}</h5>`;
+
+            option.forEach(element => {
+                quiz.innerHTML += `<div class="custom-control custom-radio">
+                                    <input type="radio" id="${forId}" name="customRadio${iteration+1}" value="${element}" class="custom-control-input">
+                                    <label class="custom-control-label" for="${forId}">${element}</label>
+                                </div></div>`
+                forId++;
+            });
+            iteration++;
+        }
+
+        function pageBuilder(data) {
+            var category = document.querySelector('#category');
+            category.innerHTML = data.results[0].category;
+            var type = document.querySelector('#type');
+            type.innerHTML = 'Type: ' + data.results[0].type;
+        }
+
+        function shufOpt(array) {
+            for (let index = 0; index < array.length; index++) {
+                rand = Math.floor(Math.random() * 4);
+                const temp = array[index];
+                array[index] = array[rand];
+                array[rand] = temp;
+            }
+        }
+
+        function submitQuiz() {
+            var useransw = $("input[type='radio']");
+            useransw = useransw.filter(":checked");
+            if (useransw.length != 10) {
+                alert("Answer all question");
+                location.reload();
+            } else {
+                let nilai = 0;
+                for (let index = 0; index < useransw.length; index++) {
+                    if (correct_answer[index] == useransw[index].value) {
+                        nilai += 10;
+                    }
+                }
+                console.log(nilai);
+                var quiz = document.querySelector('#quiz');
+                document.querySelector(".sub").innerHTML = '';
+                quiz.innerHTML = `<div class="text-center">
+                            <h1>YOUR SCORE</h1>
+                            <h3>${nilai}</h3>
+                        </div>`;
+            }
+        }
+    </script>
+</body>
+
+</html>
